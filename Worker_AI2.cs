@@ -30,13 +30,13 @@ public class Worker_AI2 : MonoBehaviour {
 				agent.SetDestination (transform.position);
 			} else {
 				agent.SetDestination (jobTarget.GetComponent<Map_CellControl>().assignPosition(gameObject));
-				Debug.Log (agent.destination);
-				if(Vector3.Distance(agent.destination,gameObject.transform.position) == 1){
+				Debug.Log (Vector3.Distance(agent.destination,gameObject.transform.position));
+				if(Vector3.Distance(agent.destination,transform.position) == 1){
 					MineCell (jobTarget);
 				}
 			}
-
 		}
+		aStar ();
 	}
 
 	public void assignJob(GameObject cell, string job, int cellNumber){
@@ -46,6 +46,7 @@ public class Worker_AI2 : MonoBehaviour {
 		jobDestination = jobTarget.GetComponent<Map_CellControl> ().assignPosition (gameObject);
 
 	}
+
 	int attackLimit = 50;
 	int attackCount = 50;
 	void MineCell(GameObject cell){
@@ -56,5 +57,10 @@ public class Worker_AI2 : MonoBehaviour {
 			attackCount++;
 		}
 	}
-
+	public void aStar(){
+		int x = 0;
+		while(x < 10){
+			x++;
+		}
+	}
 }

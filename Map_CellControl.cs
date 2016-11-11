@@ -89,13 +89,13 @@ public class Map_CellControl : MonoBehaviour {
 				switch (assignedWorkerSouth.IndexOf (Worker.name)) {
 
 				case 0:
-					return new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (0, 0, -8f);
+					return getClosetPoint(new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (0, 0, -8f));
 					break;
 				case 1:
-					return new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (3.5f, 0, -8f);
+					return getClosetPoint(new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (3.5f, 0, -8f));
 					break;
 				case 2:
-					return new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (-3.5f, 0, -8f);
+					return getClosetPoint(new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (-3.5f, 0, -8f));
 					break;
 				}
 			}
@@ -109,13 +109,13 @@ public class Map_CellControl : MonoBehaviour {
 				switch (assignedWorkerNorth.IndexOf (Worker.name)) {
 
 				case 0:
-					return new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (0, 0, 8f);
+					return getClosetPoint(new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (0, 0, 8f));
 					break;
 				case 1:
-					return new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (3.5f, 0, 8f);
+					return getClosetPoint(new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (3.5f, 0, 8f));
 					break;
 				case 2:
-					return new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (-3.5f, 0, 8f);
+					return getClosetPoint(new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (-3.5f, 0, 8f));
 					break;
 				}
 			}
@@ -129,13 +129,13 @@ public class Map_CellControl : MonoBehaviour {
 				switch (assignedWorkerEast.IndexOf (Worker.name)) {
 
 				case 0:
-					return new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (8f, 0, 0f);
+					return getClosetPoint(new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (8f, 0, 0f));
 					break;
 				case 1:
-					return new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (8f, 0, 3.5f);
+					return getClosetPoint(new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (8f, 0, 3.5f));
 					break;
 				case 2:
-					return new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (8f, 0, -3.5f);
+					return getClosetPoint(new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (8f, 0, -3.5f));
 					break;
 				}
 			}
@@ -149,13 +149,13 @@ public class Map_CellControl : MonoBehaviour {
 				switch (assignedWorkerWest.IndexOf (Worker.name)) {
 
 				case 0:
-					return new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (-8f, 0, 0f);
+					return getClosetPoint(new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (-8f, 0, 0f));
 					break;
 				case 1:
-					return new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (-8f, 0, 3.5f);
+					return getClosetPoint(new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (-8f, 0, 3.5f));
 					break;
 				case 2:
-					return new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (-8f, 0, -3.5f);
+					return getClosetPoint(new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (-8f, 0, -3.5f));
 					break;
 				}
 			}
@@ -189,5 +189,17 @@ public class Map_CellControl : MonoBehaviour {
 		*/
 		return sides;
 	}
-
+	Vector3 getClosetPoint(Vector3 currentPos){
+		Vector3 bestTarget = new Vector3();
+		float closestDist = Mathf.Infinity;
+		foreach(aStarPoint v in mapControl.mapStarMap){
+			float dist = Vector3.Distance (v.Location,currentPos);
+			if(dist < closestDist){
+				closestDist = dist;
+				bestTarget = v.Location;
+			}
+		}
+		bestTarget = new Vector3 (bestTarget.x,currentPos.y,bestTarget.z);
+		return bestTarget;
+	}
 }

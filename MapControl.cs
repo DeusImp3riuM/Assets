@@ -101,8 +101,8 @@ public class MapControl : MonoBehaviour {
 			}
 		}
 		//*/
-		Gizmos.color = Color.green;
-		Gizmos.DrawSphere (getClosetPoint(GameObject.Find("Worker5").gameObject.transform.position), 1);
+		//Gizmos.color = Color.green;
+		//Gizmos.DrawSphere (getClosetPoint(GameObject.Find("Worker5").gameObject.transform.position), 1);
 	}
 	Vector3 getClosetPoint(Vector3 currentPos){
 		Vector3 bestTarget = new Vector3();
