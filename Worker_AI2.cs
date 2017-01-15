@@ -9,9 +9,10 @@ public class Worker_AI2 : MonoBehaviour {
 	HiveMindAI HiveMind;
 
 	public string State = "Idle";
-	public GameObject jobTarget = null;
+	public Map_Cell jobTarget = null;
 	public Vector3 jobDestination = new Vector3 ();
 	public Vector3 astardestination = new Vector3();
+	public aStarPoint destinationPoint = null;
 	public List<Vector3> destinationPath = null;
 	MapControl mapController;
 	public int pathPosition = 0;
@@ -45,7 +46,7 @@ public class Worker_AI2 : MonoBehaviour {
 
 		if(State.Equals("Mine")){
 			//UnityEngine.Debug.Log (destinationPath);
-			if (jobTarget.GetComponent<Map_CellControl> ().Selected == false) {
+			if (jobTarget.Selected == false) {
 				State = "Idle";
 				jobTarget = null;
 				astardestination = transform.position;
@@ -55,8 +56,9 @@ public class Worker_AI2 : MonoBehaviour {
 					//destinationPath = PathFind (getClosetPoint (transform.position), getClosetPoint (astardestination));
 				
 				//astardestination = jobTarget.GetComponent<Map_CellControl>().assignPosition(gameObject);
-				if(getClosetPoint (transform.position) == getClosetPoint (astardestination))
+				if (Vector3.Distance (transform.position, new Vector3 (destinationPoint.Location.x, transform.position.y, destinationPoint.Location.z)) <= 8) {
 					MineCell (jobTarget);
+				}
 			}
 			if (transform.position != astardestination) {
 				if (destinationPath != null ) {
@@ -84,35 +86,33 @@ public class Worker_AI2 : MonoBehaviour {
 			}
 		}
 		else if(State.Equals("ClaimGround")){
-			if (jobTarget.GetComponent<Map_CellControl> ().Cell == 2) {
+			
+			if (jobTarget.Cell == 2) {
 				State = "Idle";
 				jobTarget = null;
 				astardestination = transform.position;
 			} else {
-				astardestination = new Vector3 (jobTarget.transform.position.x, transform.position.y, jobTarget.transform.position.z);
+				
+				astardestination = new Vector3 (jobTarget.position.x, transform.position.y, jobTarget.position.z);
 
-				if (destinationPath == null && transform.position != new Vector3 (astardestination.x, transform.position.y, astardestination.z))
+				if (destinationPath == null && transform.position != new Vector3 (astardestination.x, transform.position.y, astardestination.z)){
 					HiveMind.RequestPath (new PathRequest (this.gameObject, getClosetPoint (transform.position), getClosetPoint (astardestination)));
-				//destinationPath = PathFind (getClosetPoint (transform.position), getClosetPoint (astardestination));
+			}
 
-				//astardestination = jobTarget.GetComponent<Map_CellControl>().assignPosition(gameObject);
-				if (getClosetPoint (transform.position) == getClosetPoint (astardestination)) {
+				if (Vector3.Distance(transform.position,new Vector3(destinationPoint.Location.x,transform.position.y,destinationPoint.Location.z)) <= 8) {
 					ClaimCell (jobTarget);
 				}
+
 			}
 			if (transform.position != astardestination) {
 				if (destinationPath != null ) {
 
-					try{
-						if (transform.position.Equals (new Vector3 (destinationPath [pathPosition].x, transform.position.y, destinationPath [pathPosition].z))) {
-							if (pathPosition < destinationPath.Count-1) {
-								pathPosition++;
-							}
+					if (transform.position.Equals (new Vector3 (destinationPath [pathPosition].x, transform.position.y, destinationPath [pathPosition].z))) {
+						if (pathPosition < destinationPath.Count - 1) {
+							pathPosition++;
 						}
 					}
-					catch(System.ArgumentOutOfRangeException ex){
-						Debug.Log (ex);
-					}
+					
 					if (pathPosition >= destinationPath.Count) {
 						pathPosition = destinationPath.Count - 1;
 					}
@@ -123,27 +123,29 @@ public class Worker_AI2 : MonoBehaviour {
 				destinationPath = null;
 				pathPosition = 0;
 			}
-
+		
 		}else if(State.Equals("Idle")){
 			destinationPath = null;
+			destinationPoint = null;
 			astardestination = Vector3.zero;
 		}
 	}
 
-	public void assignJob(GameObject cell, string job, int cellNumber){
+	public void assignJob(Map_Cell cell, string job, int cellNumber){
 		jobTarget = cell;
 		State = job;
-		astardestination = jobTarget.GetComponent<Map_CellControl> ().assignPosition (gameObject);
+		astardestination = jobTarget.assignPosition (gameObject);
+		destinationPoint = getClosetPoint (astardestination);
 		if (job.Equals ("ClaimGround")) {
-			jobTarget.GetComponent<Map_CellControl> ().Claimer = true;
+			jobTarget.Claimer = true;
 		}
 	}
 
 	int attackLimit = 5;
 	int attackCount = 5;
-	void MineCell(GameObject cell){
+	void MineCell(Map_Cell cell){
 		if (attackCount >= attackLimit) {
-			cell.GetComponent<Map_CellControl> ().Attack(mineSpeed);
+			cell.Attack(mineSpeed);
 			attackCount = 0;
 		} else
 			attackCount++;
@@ -151,9 +153,9 @@ public class Worker_AI2 : MonoBehaviour {
 
 	int claimLimit = 100;
 	int claimCount = 0;
-	void ClaimCell(GameObject cell){
+	void ClaimCell(Map_Cell cell){
 		if (claimCount >= claimLimit) {
-			cell.GetComponent<Map_CellControl> ().ChangeCell(2);
+			cell.ChangeCell (2);
 			claimCount = 0;
 		} else
 			claimCount++;
@@ -187,6 +189,7 @@ public class Worker_AI2 : MonoBehaviour {
 		aStarPoint bestTarget = new aStarPoint ();
 		float closestDist = -1f;
 		//List<aStarPoint> liststar = new List<aStarPoint> ();
+
 		foreach(aStarPoint v in mapController.mapStarMap){
 			//*
 			float dist = Vector2.Distance (new Vector2(v.Location.x,v.Location.z),(new Vector2(currentPos.x,currentPos.z)));

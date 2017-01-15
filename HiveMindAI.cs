@@ -10,12 +10,12 @@ public class HiveMindAI : MonoBehaviour {
 	//Stopwatch sw = new Stopwatch();
 
 	/* Work Assigning */
-	public List<GameObject> selectedCells = new List<GameObject> ();
+	public List<Map_Cell> selectedCells = new List<Map_Cell> ();
 	List<GameObject> IdleWorkers = new List<GameObject>();
 	List<GameObject> AllWorkers = new List<GameObject>();
 	MapControl mc = null;
-	List<GameObject> ReachableCells = new List<GameObject>();
-	public List<GameObject> IsClaimable = new List<GameObject> ();
+	List<Map_Cell> ReachableCells = new List<Map_Cell>();
+	public List<Map_Cell> IsClaimable = new List<Map_Cell> ();
 	List<Job> AvailableJobs = new List<Job> ();
 
 	/* Path Finding */
@@ -44,20 +44,20 @@ public class HiveMindAI : MonoBehaviour {
 
 		if (IdleWorkers.Count > 0) {
 			if (selectedCells.Count > 0 ) {
-				foreach (GameObject cell in selectedCells.ToArray()) {
+				foreach (Map_Cell cell in selectedCells.ToArray()) {
 					if (findSuitableMine (cell) != null) {
 						ReachableCells.Add (cell);
 					}
 				}
-				foreach (GameObject cell in ReachableCells) {
-					if (cell.GetComponent<Map_CellControl> ().availableMineSpace () > 0) {
+				foreach (Map_Cell cell in ReachableCells) {
+					if (cell.availableMineSpace () > 0) {
 						AvailableJobs.Add (new Job (cell, "Mine"));
 					}
 				}
 			}
 			if(IsClaimable.Count > 0){
-				foreach(GameObject cell in IsClaimable){
-					if(!cell.GetComponent<Map_CellControl>().Claimer)
+				foreach(Map_Cell cell in IsClaimable){
+					if(!cell.Claimer)
 						AvailableJobs.Add(new Job(cell,"ClaimGround"));
 				}
 			}
@@ -85,17 +85,17 @@ public class HiveMindAI : MonoBehaviour {
 		if(AvailableJobs.Count != 0){
 			//*
 			IdleWorkers.Sort (delegate(GameObject x, GameObject y) {
-				return Vector3.Distance(AvailableJobs[0].Cell.transform.position,x.transform.position)
+				return Vector3.Distance(AvailableJobs[0].Cell.position,x.transform.position)
 					.CompareTo(
-						Vector3.Distance(AvailableJobs[0].Cell.transform.position,y.transform.position));
+						Vector3.Distance(AvailableJobs[0].Cell.position,y.transform.position));
 			});
 			//IdleWorkers[0].GetComponent<Worker_AI2> ().assignJob (AvailableJobs[0], "Mine", 0);
 			//*/
 
 			//*
 			AvailableJobs.Sort (delegate(Job x, Job y) {
-				return Vector3.Distance(IdleWorkers[0].transform.position,x.Cell.transform.position).CompareTo(
-					Vector3.Distance(IdleWorkers[0].transform.position,y.Cell.transform.position));
+				return Vector3.Distance(IdleWorkers[0].transform.position,x.Cell.position).CompareTo(
+					Vector3.Distance(IdleWorkers[0].transform.position,y.Cell.position));
 			});
 			IdleWorkers[0].GetComponent<Worker_AI2> ().assignJob (AvailableJobs[0].Cell, AvailableJobs[0].Type, 0);
 			//*/
@@ -124,15 +124,15 @@ public class HiveMindAI : MonoBehaviour {
 			timer = 0;
 		timer++;
 	}
-	GameObject findSuitableMine(GameObject s){
-		if (mc.mapCells [(int)s.GetComponent<Map_CellControl> ().gridPosition.y - 1, (int)s.GetComponent<Map_CellControl> ().gridPosition.x].GetComponent<Map_CellControl> ().Walkable) {
-			return mc.mapCells [(int)s.GetComponent<Map_CellControl> ().gridPosition.y - 1, (int)s.GetComponent<Map_CellControl> ().gridPosition.x];
-		} else if (mc.mapCells [(int)s.GetComponent<Map_CellControl> ().gridPosition.y + 1, (int)s.GetComponent<Map_CellControl> ().gridPosition.x].GetComponent<Map_CellControl> ().Walkable) {
-			return mc.mapCells [(int)s.GetComponent<Map_CellControl> ().gridPosition.y + 1, (int)s.GetComponent<Map_CellControl> ().gridPosition.x];
-		} else if (mc.mapCells [(int)s.GetComponent<Map_CellControl> ().gridPosition.y, (int)s.GetComponent<Map_CellControl> ().gridPosition.x - 1].GetComponent<Map_CellControl> ().Walkable) {
-			return mc.mapCells [(int)s.GetComponent<Map_CellControl> ().gridPosition.y, (int)s.GetComponent<Map_CellControl> ().gridPosition.x - 1];
-		} else if (mc.mapCells [(int)s.GetComponent<Map_CellControl> ().gridPosition.y, (int)s.GetComponent<Map_CellControl> ().gridPosition.x + 1].GetComponent<Map_CellControl> ().Walkable) {
-			return mc.mapCells [(int)s.GetComponent<Map_CellControl> ().gridPosition.y, (int)s.GetComponent<Map_CellControl> ().gridPosition.x + 1];
+	Map_Cell findSuitableMine(Map_Cell s){
+		if (mc.mapCells [(int)s.gridPosition.y - 1, (int)s.gridPosition.x].Walkable) {
+			return mc.mapCells [(int)s.gridPosition.y - 1, (int)s.gridPosition.x];
+		} else if (mc.mapCells [(int)s.gridPosition.y + 1, (int)s.gridPosition.x].Walkable) {
+			return mc.mapCells [(int)s.gridPosition.y + 1, (int)s.gridPosition.x];
+		} else if (mc.mapCells [(int)s.gridPosition.y, (int)s.gridPosition.x - 1].Walkable) {
+			return mc.mapCells [(int)s.gridPosition.y, (int)s.gridPosition.x - 1];
+		} else if (mc.mapCells [(int)s.gridPosition.y, (int)s.gridPosition.x + 1].Walkable) {
+			return mc.mapCells [(int)s.gridPosition.y, (int)s.gridPosition.x + 1];
 		} else {
 			return null;
 		}
@@ -238,14 +238,14 @@ public class HiveMindAI : MonoBehaviour {
 
 
 public class Job{
-	private GameObject cell;
+	private Map_Cell cell;
 	private string type;
 
-	public Job(GameObject _cell, string _job){
+	public Job(Map_Cell _cell, string _job){
 		cell = _cell;
 		type = _job;
 	}
-	public GameObject Cell{
+	public Map_Cell Cell{
 		get{
 			return cell;
 		}

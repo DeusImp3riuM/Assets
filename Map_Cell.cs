@@ -1,14 +1,15 @@
-﻿/*
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-public class Map_CellControl : MonoBehaviour {
+public class Map_Cell{
 
+	public Vector3 position = new Vector3 ();
+	public string name  = "";
 	public int Cell = 1;
-	public int health = 1;
+	public int health = 20;
 	public bool Selected = false;
 	public bool MineAble = false;
 	public bool Walkable = false;
@@ -22,14 +23,14 @@ public class Map_CellControl : MonoBehaviour {
 	HiveMindAI HiveMind;
 
 	// Use this for initialization
-	void Start () {
+	public Map_Cell (Vector3 pos) {
+		position = pos;
 		mapControl = GameObject.Find ("MapController").GetComponent<MapControl> ();
-		HiveMind = GameObject.Find ("HiveMind").GetComponent<HiveMindAI> ();
+		//HiveMind = GameObject.Find ("HiveMind").GetComponent<HiveMindAI> ();
 
 	}
 	// Update is called once per frame
-	void Update () {
-		GetComponent<MeshRenderer> ().enabled = false;
+	public void Update () {
 		if(Cell == 1){
 			if(isClaimable() && !HiveMind.IsClaimable.Contains(this) && !hasClaimer){
 				HiveMind.IsClaimable.Add (this);
@@ -53,8 +54,7 @@ public class Map_CellControl : MonoBehaviour {
 		}
 		switch (Cell) {
 		case -1:
-			transform.position = new Vector3 (transform.position.x, 6, transform.position.z);
-			this.GetComponent<Renderer> ().material.SetColor ("_Color", new Color (0.2f, 0.2f, 0.2f));
+			position = new Vector3 (position.x, 6, position.z);
 			MineAble = false;
 			Walkable = false;
 			for (int i = 0; i < 3; i++) {
@@ -65,8 +65,7 @@ public class Map_CellControl : MonoBehaviour {
 			}
 			break;
 		case 0:
-			transform.position = new Vector3 (transform.position.x, 6, transform.position.z);
-			this.GetComponent<Renderer> ().material.SetColor ("_Color", new Color (0, 0, 0));
+			position = new Vector3 (position.x, 6, position.z);
 			MineAble = true;
 			Walkable = false;
 			for (int i = 0; i < 3; i++) {
@@ -77,8 +76,7 @@ public class Map_CellControl : MonoBehaviour {
 			}
 			break;
 		case 1:
-			transform.position = new Vector3 (transform.position.x, -6, transform.position.z);
-			this.GetComponent<Renderer> ().material.SetColor ("_Color", new Color (0.5F, 0.25F, 0.0F));
+			position = new Vector3 (position.x, -6, position.z);
 			MineAble = false;
 			Walkable = true;
 			for (int i = 0; i < 3; i++) {
@@ -89,8 +87,7 @@ public class Map_CellControl : MonoBehaviour {
 			}
 			break;
 		case 2:
-			transform.position = new Vector3 (transform.position.x, -6, transform.position.z);
-			this.GetComponent<Renderer> ().material.SetColor ("_Color", new Color (0.7F, 0.7F, 0.7F));
+			position = new Vector3 (position.x, -6, position.z);
 			MineAble = false;
 			Walkable = true;
 			for (int i = 0; i < 3; i++) {
@@ -112,8 +109,7 @@ public class Map_CellControl : MonoBehaviour {
 	public void SelectCell(){
 		Selected = !Selected;
 		if (Selected) {
-			this.GetComponent<Renderer> ().material.SetColor ("_EmissionColor", Color.blue);
-			HiveMind.selectedCells.Add(this.gameObject);
+			HiveMind.selectedCells.Add(this);
 			mapControl.generateTextures ();
 		} else {
 			assignedWorkerNorth.Clear();
@@ -121,19 +117,18 @@ public class Map_CellControl : MonoBehaviour {
 			assignedWorkerEast.Clear();
 			assignedWorkerWest.Clear();
 
-			this.GetComponent<Renderer> ().material.SetColor ("_EmissionColor", Color.black);
-			HiveMind.selectedCells.Remove (this.gameObject);
+			HiveMind.selectedCells.Remove (this);
 			mapControl.generateTextures ();
 		}
 	}
 	bool isClaimable(){
-		if (mapControl.mapCells [(int)gridPosition.y - 1, (int)gridPosition.x].GetComponent<Map_CellControl> ().Cell == 2)
+		if (mapControl.mapCells [(int)gridPosition.y - 1, (int)gridPosition.x].Cell == 2)
 			return true;
-		else if (mapControl.mapCells [(int)gridPosition.y + 1, (int)gridPosition.x].GetComponent<Map_CellControl> ().Cell == 2)
+		else if (mapControl.mapCells [(int)gridPosition.y + 1, (int)gridPosition.x].Cell == 2)
 			return true;
-		else if (mapControl.mapCells [(int)gridPosition.y, (int)gridPosition.x - 1].GetComponent<Map_CellControl> ().Cell == 2)
+		else if (mapControl.mapCells [(int)gridPosition.y, (int)gridPosition.x - 1].Cell == 2)
 			return true;
-		else if (mapControl.mapCells [(int)gridPosition.y, (int)gridPosition.x + 1].GetComponent<Map_CellControl> ().Cell == 2)
+		else if (mapControl.mapCells [(int)gridPosition.y, (int)gridPosition.x + 1].Cell == 2)
 			return true;
 		return false;
 	}
@@ -145,78 +140,82 @@ public class Map_CellControl : MonoBehaviour {
 		Vector3 north = Vector3.zero;
 		Vector3 east = Vector3.zero;
 		Vector3 west = Vector3.zero;
-		if(mapControl.mapCells[(int)gridPosition.y-1,(int)gridPosition.x].GetComponent<Map_CellControl>().Walkable){
+		if(mapControl.mapCells[(int)gridPosition.y-1,(int)gridPosition.x].Walkable){
 //			if (!assignedWorkerSouth.Contains (Worker.name) && assignedWorkerSouth.Count < 3) {
 //				assignedWorkerSouth.Add (Worker.name);
 //
 //			}
-			if (assignedWorkerSouth.Count < 3 /*|| assignedWorkerSouth.Contains(Worker.name)) {
+			if (assignedWorkerSouth.Count < 3 /*|| assignedWorkerSouth.Contains(Worker.name)*/) {
 				//switch (assignedWorkerSouth.IndexOf (Worker.name)) {
 				switch (assignedWorkerSouth.Count) {
 				case 0:
-					south = getClosetPoint(new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (0, 0, -8f));
+					south = getClosetPoint(new Vector3 (position.x, Worker.transform.position.y, position.z) + new Vector3 (0, 0, -8f));
 					break;
 				case 1:
-					south = getClosetPoint(new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (3.5f, 0, -8f));
+					south = getClosetPoint(new Vector3 (position.x, Worker.transform.position.y, position.z) + new Vector3 (3.5f, 0, -8f));
 					break;
 				case 2:
-					south = getClosetPoint(new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (-3.5f, 0, -8f));
+					south = getClosetPoint(new Vector3 (position.x, Worker.transform.position.y, position.z) + new Vector3 (-3.5f, 0, -8f));
 					break;
 				}
 			}
 		}
-		if(mapControl.mapCells[(int)gridPosition.y+1,(int)gridPosition.x].GetComponent<Map_CellControl>().Walkable){
-			if (assignedWorkerNorth.Count < 3 /*|| assignedWorkerNorth.Contains(Worker.name)) {
+		if(mapControl.mapCells[(int)gridPosition.y+1,(int)gridPosition.x].Walkable){
+//			if (!assignedWorkerNorth.Contains (Worker.name) && assignedWorkerNorth.Count < 3) {
+//				assignedWorkerNorth.Add (Worker.name);
+//
+//			}
+			if (assignedWorkerNorth.Count < 3 /*|| assignedWorkerNorth.Contains(Worker.name)*/) {
 				//switch (assignedWorkerNorth.IndexOf (Worker.name)) {
 				switch (assignedWorkerNorth.Count) {
 				case 0:
-					north = getClosetPoint(new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (0, 0, 8f));
+					north = getClosetPoint(new Vector3 (position.x, Worker.transform.position.y, position.z) + new Vector3 (0, 0, 8f));
 					break;
 				case 1:
-					north = getClosetPoint(new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (3.5f, 0, 8f));
+					north = getClosetPoint(new Vector3 (position.x, Worker.transform.position.y, position.z) + new Vector3 (3.5f, 0, 8f));
 					break;
 				case 2:
-					north = getClosetPoint(new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (-3.5f, 0, 8f));
+					north = getClosetPoint(new Vector3 (position.x, Worker.transform.position.y, position.z) + new Vector3 (-3.5f, 0, 8f));
 					break;
 				}
 			}
 		}
-		if(mapControl.mapCells[(int)gridPosition.y,(int)gridPosition.x+1].GetComponent<Map_CellControl>().Walkable){
+		if(mapControl.mapCells[(int)gridPosition.y,(int)gridPosition.x+1].Walkable){
 //			if (!assignedWorkerEast.Contains (Worker.name) && assignedWorkerEast.Count < 3) {
 //				assignedWorkerEast.Add (Worker.name);
 //
 //			}
-			if (assignedWorkerEast.Count < 3 /*|| assignedWorkerEast.Contains(Worker.name)) {
+			if (assignedWorkerEast.Count < 3 /*|| assignedWorkerEast.Contains(Worker.name)*/) {
 				//switch (assignedWorkerEast.IndexOf (Worker.name)) {
 				switch (assignedWorkerEast.Count) {
 				case 0:
-					east = getClosetPoint(new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (8f, 0, 0f));
+					east = getClosetPoint(new Vector3 (position.x, Worker.transform.position.y, position.z) + new Vector3 (8f, 0, 0f));
 					break;
 				case 1:
-					east = getClosetPoint(new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (8f, 0, 3.5f));
+					east = getClosetPoint(new Vector3 (position.x, Worker.transform.position.y, position.z) + new Vector3 (8f, 0, 3.5f));
 					break;
 				case 2:
-					east = getClosetPoint(new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (8f, 0, -3.5f));
+					east = getClosetPoint(new Vector3 (position.x, Worker.transform.position.y, position.z) + new Vector3 (8f, 0, -3.5f));
 					break;
 				}
 			}
 		}
-		if(mapControl.mapCells[(int)gridPosition.y,(int)gridPosition.x-1].GetComponent<Map_CellControl>().Walkable){
+		if(mapControl.mapCells[(int)gridPosition.y,(int)gridPosition.x-1].Walkable){
 //			if (!assignedWorkerWest.Contains (Worker.name) && assignedWorkerWest.Count < 3) {
 //				assignedWorkerWest.Add (Worker.name);
 //
 //			}
-			if (assignedWorkerWest.Count < 3 /*|| assignedWorkerWest.Contains(Worker.name)) {
+			if (assignedWorkerWest.Count < 3 /*|| assignedWorkerWest.Contains(Worker.name)*/) {
 				//switch (assignedWorkerWest.IndexOf (Worker.name)) {
 				switch (assignedWorkerWest.Count) {
 				case 0:
-					west = getClosetPoint(new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (-8f, 0, 0f));
+					west = getClosetPoint(new Vector3 (position.x, Worker.transform.position.y, position.z) + new Vector3 (-8f, 0, 0f));
 					break;
 				case 1:
-					west = getClosetPoint(new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (-8f, 0, 3.5f));
+					west = getClosetPoint(new Vector3 (position.x, Worker.transform.position.y, position.z) + new Vector3 (-8f, 0, 3.5f));
 					break;
 				case 2:
-					west = getClosetPoint(new Vector3 (transform.position.x, Worker.transform.position.y, transform.position.z) + new Vector3 (-8f, 0, -3.5f));
+					west = getClosetPoint(new Vector3 (position.x, Worker.transform.position.y, position.z) + new Vector3 (-8f, 0, -3.5f));
 					break;
 				}
 			}
@@ -250,17 +249,17 @@ public class Map_CellControl : MonoBehaviour {
 	}
 	public int availableMineSpace(){
 		int sides = 0;
-		GameObject[,] Map = GameObject.Find ("MapController").GetComponent<MapControl> ().mapCells;
-		if(Map[(int)gridPosition.y-1,(int)gridPosition.x].GetComponent<Map_CellControl>().Walkable){
+		Map_Cell[,] Map = GameObject.Find ("MapController").GetComponent<MapControl> ().mapCells;
+		if(Map[(int)gridPosition.y-1,(int)gridPosition.x].Walkable){
 			sides++;
 		}
-		if(Map[(int)gridPosition.y+1,(int)gridPosition.x].GetComponent<Map_CellControl>().Walkable){
+		if(Map[(int)gridPosition.y+1,(int)gridPosition.x].Walkable){
 			sides++;
 		}
-		if(Map[(int)gridPosition.y,(int)gridPosition.x-1].GetComponent<Map_CellControl>().Walkable){
+		if(Map[(int)gridPosition.y,(int)gridPosition.x-1].Walkable){
 			sides++;
 		}
-		if(Map[(int)gridPosition.y,(int)gridPosition.x+1].GetComponent<Map_CellControl>().Walkable){
+		if(Map[(int)gridPosition.y,(int)gridPosition.x+1].Walkable){
 			sides++;
 		}
 		sides *= 3; // default value 3
@@ -269,7 +268,7 @@ public class Map_CellControl : MonoBehaviour {
 		if(assignedWorkerNorth.Contains(NPC) || assignedWorkerEast.Contains(NPC) || assignedWorkerSouth.Contains(NPC) || assignedWorkerWest.Contains(NPC)){
 			sides = 1;
 		}
-
+		*/
 		return sides;
 	}
 	Vector3 getClosetPoint(Vector3 currentPos){
@@ -293,21 +292,18 @@ public class Map_CellControl : MonoBehaviour {
 			hasClaimer = value;
 		}
 	}
-
+	public HiveMindAI Hive{
+		set{
+			HiveMind = value;
+		}
+	}
 	public void Attack(int dmg){
 		health -= dmg;
 		if(health <= 0){
-			HiveMind.selectedCells.Remove(gameObject);
+			HiveMind.selectedCells.Remove(this);
 			ChangeCell (1);
 			SelectCell ();
 			health = 1;
 		} 
 	}
-	void OnBecameVisible(){
-		this.GetComponent<MeshRenderer> ().enabled = true;
-	}
-	void OnBecameInvisible(){
-		this.GetComponent<MeshRenderer> ().enabled = false;
-	}
 }
-*/
